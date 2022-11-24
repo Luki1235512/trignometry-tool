@@ -45,7 +45,11 @@
         drawCoordinateSystem(ctx, offset);
 
         drawText("sin = a / c = " + sin.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.7});
-        drawText("θ = " + theta.toFixed(2), {x: offset.x / 2, y: offset.y * 0.7});
+        drawText("θ = "
+            + theta.toFixed(2)
+            + " ("
+            +  Math.round(toDeg(theta)).toString().padStart(2, " ")
+            + "°)", {x: offset.x / 2, y: offset.y * 0.7});
 
         drawLine(A, B);
         drawText("c", average(A, B));
@@ -57,6 +61,22 @@
         drawText("a", average(B, C));
 
         drawText("θ", A);
+
+        ctx.beginPath();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        const start = B.x > A.x ? 0 : Math.PI;
+        const clockwise = B.y < C.y ^ B.x > A.x;
+        let end = B.y < C.y ? -theta : theta;
+        if (B.x < A.x) {
+            end = Math.PI - end;
+        }
+        ctx.arc(0, 0, 20, start, end, !clockwise);
+        ctx.stroke();
+    }
+
+    function toDeg(rad) {
+        return rad * 180 / Math.PI;
     }
 
     function average(p1, p2) {
