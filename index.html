@@ -37,9 +37,15 @@
         const a = distance(B, C);
         const b = distance(A, C);
 
+        const sin = a / c;
+        const theta = Math.asin(sin);
+
         ctx.clearRect(-offset.x, -offset.y, myCanvas.width, myCanvas.height);
 
         drawCoordinateSystem(ctx, offset);
+
+        drawText("sin = a / c = " + sin.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.7});
+        drawText("θ = " + theta.toFixed(2), {x: offset.x / 2, y: offset.y * 0.7});
 
         drawLine(A, B);
         drawText("c", average(A, B));
@@ -56,12 +62,12 @@
     function average(p1, p2) {
         return {
             x: (p1.x + p2.x) / 2,
-            y: (p1.y + p2.y) / 2,
+            y: (p1.y + p2.y) / 2
         }
     }
 
     function distance(p1, p2) {
-        return Math.hypot(p1.x, - p2.x, p1.y - p2.y);
+        return Math.hypot(p1.x -p2.x, p1.y - p2.y);
     }
 
     function drawText(text, loc, color = "black") {
