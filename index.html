@@ -26,9 +26,11 @@
         y: chartCanvas.height / 2
     }
 
+    let theta = Math.PI / 4;
+    const c = 100;
 
     const A = {x: 0, y: 0};
-    const B = {x: 90, y: 120};
+    const B = {x: Math.cos(theta) * c, y: Math.sin(theta) * c};
     const C = {x: B.x, y: 0};
 
     ctx.translate(offset.x, offset.y);
@@ -37,30 +39,26 @@
     drawCoordinateSystem(chartCtx, chartOffset);
     update();
 
-    document.onmousemove = (event) => {
-        B.x = event.x - offset.x;
-        B.y = event.y - offset.y;
+    document.onwheel = (event) => {
+        theta -= toRad(Math.sign(event.deltaY));
+        B.x = Math.cos(theta) * c;
+        B.y = Math.sin(theta) * c;
         C.x = B.x;
 
         update();
     }
 
     function update() {
-        const c = distance(A, B);
-        const a = distance(B, C);
-        const b = distance(A, C);
-
-        const sin = a / c;
-        const cos = b / c;
-        const tan = sin / cos;
-        const theta = Math.asin(sin);
+        const sin = Math.sin(theta);
+        const cos = Math.cos(theta);
+        const tan = Math.tan(theta);
 
         ctx.clearRect(-offset.x, -offset.y, myCanvas.width, myCanvas.height);
 
         drawCoordinateSystem(ctx, offset);
 
-        drawText("sin = a / c = " + sin.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.7}, "red");
-        drawText("cos = b / c = " + cos.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.8}, "blue");
+        drawText("sin = " + sin.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.7}, "red");
+        drawText("cos = " + cos.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.8}, "blue");
         drawText("tan = a / b = " + tan.toFixed(2), {x: -offset.x / 2, y: offset.y * 0.9}, "magenta");
         drawText("θ = "
             + theta.toFixed(2)
@@ -69,26 +67,20 @@
             + "°)", {x: offset.x / 2, y: offset.y * 0.7});
 
         drawLine(A, B);
-        drawText("c", average(A, B), );
+        drawText("1", average(A, B), );
 
         drawLine(A, C, "blue");
-        drawText("b", average(A, C), "blue");
+        drawText("cos", average(A, C), "blue");
 
         drawLine(B, C, "red");
-        drawText("a", average(B, C), "red");
+        drawText("sin", average(B, C), "red");
 
         drawText("θ", A);
 
         ctx.beginPath();
         ctx.strokeStyle = "black";
         ctx.lineWidth = 2;
-        const start = B.x > A.x ? 0 : Math.PI;
-        const clockwise = B.y < C.y ^ B.x > A.x;
-        let end = B.y < C.y ? -theta : theta;
-        if (B.x < A.x) {
-            end = Math.PI - end;
-        }
-        ctx.arc(0, 0, 20, start, end, !clockwise);
+        ctx.arc(0, 0, c, 0, theta, theta < 0);
         ctx.stroke();
 
         const chartScaler = chartOffset.y * 0.5;
@@ -96,6 +88,10 @@
         drawPoint({x: theta * chartScaler, y: sin * chartScaler}, 2, "red");
         drawPoint({x: theta * chartScaler, y: cos * chartScaler}, 2, "blue");
         drawPoint({x: theta * chartScaler, y: tan * chartScaler}, 2, "magenta");
+    }
+
+    function toRad(deg) {
+        return deg * Math.PI / 180;
     }
 
     function toDeg(rad) {
